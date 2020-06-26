@@ -22,7 +22,7 @@ metadata:
 
 syntax:
   # Manually Configured Syntax Section.
-  identifier_quote: '"'
+  identifier_quote: '`'
   identifier_length_limit: 128
   allows_boolean_literal: false
   map_boolean_literal_to_bit: false

@@ -33,30 +33,63 @@ import com.google.common.annotations.VisibleForTesting;
 import io.protostuff.Tag;
 
 /**
- * Configuration for SQLite sources.
+ * Configuration for Drill sources.
  */
-@SourceType(value = "SQLITE", label = "SQLite")
-public class SqliteConf extends AbstractArpConf<SqliteConf> {
-  private static final String ARP_FILENAME = "arp/implementation/sqlite-arp.yaml";
+@SourceType(value = "DRILL", label = "Drill")
+public class DrillConf extends AbstractArpConf<DrillConf> {
+  private static final String ARP_FILENAME = "arp/implementation/drill-arp.yaml";
   private static final ArpDialect ARP_DIALECT =
       AbstractArpConf.loadArpFile(ARP_FILENAME, (ArpDialect::new));
-  private static final String DRIVER = "org.sqlite.JDBC";
+  private static final String DRIVER = "org.apache.drill.jdbc.Driver";
+
+  @Tag(1)
+  @DisplayMetadata(label = "Drillbit")
+  public boolean drillbit;
 
   @NotBlank
-  @Tag(1)
-  @DisplayMetadata(label = "Database")
-  public String database;
-
   @Tag(2)
+  @DisplayMetadata(label = "Host")
+  public String host;
+
+  @NotBlank
+  @Tag(3)
+  @DisplayMetadata(label = "Port")
+  public String port;
+
+  @Tag(4)
+  @DisplayMetadata(label = "Directory")
+  public String directory = "/drill";
+
+  @Tag(5)
+  @DisplayMetadata(label = "Cluster ID")
+  public String clusterId = "drillbits1";
+
+  @Tag(6)
+  @DisplayMetadata(label = "schema")
+  public String schema;
+
+  @Tag(7)
   @DisplayMetadata(label = "Record fetch size")
   @NotMetadataImpacting
   public int fetchSize = 200;
 
   @VisibleForTesting
   public String toJdbcConnectionString() {
-    final String database = checkNotNull(this.database, "Missing database.");
+    final String database = checkNotNull(this.host, "Missing host.");
+    final String port = checkNotNull(this.port, "Missing port.");
+    final StringBuilder builder = new StringBuilder("jdbc:drill");
 
-    return String.format("jdbc:sqlite:%s", database);
+    if (drillbit) {
+      builder.append(String.format(":drillbit=%s:%s", host, port));
+    } else {
+      builder.append(String.format(":zk=%s:%s%s/%s", host, port, directory, clusterId));
+    }
+
+    if (schema != null && schema.length() != 0) {
+      builder.append(String.format(";schema=%s", schema));
+    }
+
+    return builder.toString();
   }
 
   @Override
