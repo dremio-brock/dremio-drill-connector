@@ -16,8 +16,8 @@
 
 metadata:
   # Manually Configured Metadata Section.
-  name: SQLITE
-  apiname: sqlite
+  name: DRILL
+  apiname: drill
   spec_version: '1'
 
 syntax:
