@@ -1,4 +1,4 @@
-# Dremio ARP Example Connector
+# Dremio Drill Connector
 
 ## Overview
 
